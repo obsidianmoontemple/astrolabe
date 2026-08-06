@@ -4,9 +4,8 @@
     "target": {
       "namespace": "android_app",
       "package_name": "com.obsidianmoontemple.temple",
-      "sha256_cert_fingerprints": [
-        "F0:09:BA:C4:DF:75:27:77:95:15:F5:DC:08:ED:C9:84:D8:74:AE:6B:DF:66:CA:2A:82:DC:93:00:E1:62:29:EE"
-      ]
+      "sha256_cert_fingerprints":
+        ["C9:4C:0C:A4:1F:FA:25:CD:34:67:77:6F:A8:57:25:EA:3A:51:5A:BE:B2:71:3D:21:D5:09:A2:7A:46:DF:85:39"]
     }
   }
 ]
