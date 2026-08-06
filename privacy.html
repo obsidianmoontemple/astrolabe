@@ -25,6 +25,11 @@
     background: #0e0a17; padding: 16px 18px; margin: 20px 0;
   }
   .box strong { color: #f1effa; }
+  .warn { border-color: rgba(255,204,102,.45); background: #1c1405; }
+  .warn strong { color: #ffe2a8; }
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: .92rem; }
+  th, td { border: 1px solid rgba(157,91,210,.25); padding: 9px 11px; text-align: left; vertical-align: top; }
+  th { background: rgba(110,59,167,.15); color: #f1effa; }
   #templeBack{
     position:fixed; top:calc(10px + env(safe-area-inset-top,0px));
     left:calc(10px + env(safe-area-inset-left,0px));
@@ -41,93 +46,153 @@
 <main>
 
 <h1>Privacy Policy</h1>
-<p class="updated">Temple of the Obsidian Moon app &middot; Last updated: <!--DATE-->[DATE]<!--/DATE--></p>
+<p class="updated">Temple of the Obsidian Moon app &middot; Last updated: [DATE]</p>
 
 <div class="box">
-  <strong>The short version.</strong> This app does not collect your personal
-  information. Everything you enter &mdash; names, intentions, birth details,
-  progress &mdash; stays on your own device. We have no accounts, no logins, no
-  analytics, and no advertising. We cannot see what you do in this app.
+  <strong>The short version.</strong> There are no accounts, no logins, no
+  analytics, and no advertising in this app. Most of what you do stays on your
+  own device. Two parts of the Temple &mdash; the Temple Portal and the Cyber
+  Altar &mdash; are shared spaces: what you write there is sent to us and shown
+  to other people using the app. The dream log is different again: it is sent
+  privately to us, may include your email so we can reply, and is never shown to
+  anyone else. Nothing at all is collected in the Kid Zone.
 </div>
 
-<h2>What stays on your device</h2>
-<p>Several parts of the Temple let you save things so they are still there when
-you come back. All of it is stored locally, in your device's own storage, and
-none of it is transmitted to us or anyone else:</p>
+<h2>The shared spaces</h2>
+<div class="box warn">
+  <strong>Please read this before you write anything in the Portal or the Altar.</strong>
+  These are communal parts of the Temple. What you submit is stored by us and
+  displayed inside the app to everyone else who opens it. Treat them like writing
+  in a book left open on a table &mdash; not like a private diary. Do not include
+  your full name, address, phone number, email, or anything else you would not
+  want a stranger to read.
+</div>
+
+<table>
+  <tr><th>Where</th><th>What is sent</th><th>Who can see it</th></tr>
+  <tr>
+    <td><strong>Temple Portal</strong><br>Prayer requests &amp; blessings</td>
+    <td>The name you type (any name you like, or none) and the text of your request or blessing</td>
+    <td>Everyone using the app</td>
+  </tr>
+  <tr>
+    <td><strong>Temple Portal</strong><br>Dream log</td>
+    <td>Your dream, and the name or email address you give so we can reply</td>
+    <td><strong>Only us</strong> &mdash; never shown to other users</td>
+  </tr>
+  <tr>
+    <td><strong>Cyber Altar</strong><br>Candles &amp; offerings</td>
+    <td>The name you type (defaults to &ldquo;Anonymous Seeker&rdquo;), your candle intention, which candle you lit, the offering you chose, and the date</td>
+    <td>Everyone using the app</td>
+  </tr>
+</table>
+
+<p>This information is stored in a private Google Sheet belonging to the Temple.
+We use it only to display the communal candle log, the offering basin, and the
+book of blessings. We do not sell it, share it with advertisers, or use it for
+anything else. You are welcome to write under any name you like, or none at all.</p>
+
+<p>If you would like something you posted removed, write to us at the address at
+the bottom of this page and we will delete it.</p>
+
+<h2>The dream log, in particular</h2>
+<p>The dream log works differently from the rest of the Temple, so it deserves
+its own explanation.</p>
 <ul>
-  <li>Names or nicknames you choose, including a child's chosen name and the name of their familiar in the Kid Zone</li>
-  <li>Progress through lessons, quests, and games</li>
-  <li>Candle intentions, altar offerings, and drawn sigils</li>
+  <li><strong>It is private.</strong> Unlike candles and blessings, a dream is
+  never displayed to other users. It goes to the High Priest and no one else.</li>
+  <li><strong>It may include your email address.</strong> The contact field is
+  there so the High Priest can write back to you. You can put a name instead, or
+  leave it blank &mdash; the dream will still be read, we simply won't be able to
+  reply.</li>
+  <li><strong>We use it only to respond to you.</strong> Your address is never
+  added to a mailing list, never used for marketing, and never passed to anyone
+  else.</li>
+  <li><strong>You can have it deleted at any time.</strong> Write to us and we
+  will remove your dream and your contact details from the ledger.</li>
+</ul>
+<p>Dreams can be deeply personal. Please share only what you are comfortable
+having another person read, and consider leaving out details that identify you or
+anyone else by name.</p>
+
+<h2>What never leaves your device</h2>
+<p>Everything else the Temple remembers is stored only in your device's own
+storage. We cannot see any of it:</p>
+<ul>
   <li>Birth date, time, and place entered into the Astrolabe to calculate a chart</li>
   <li>Coordinates you enter or allow the app to detect, used to draw the sky above you</li>
+  <li>Sigils you draw</li>
+  <li>Readings from the Divination Station and the Obsidian Mirror</li>
+  <li>Progress in the Potion Game</li>
+  <li>Everything in the Kid Zone</li>
 </ul>
 <p>Clearing the app's data, or uninstalling it, permanently erases all of this.
 We keep no copy and cannot restore it.</p>
 
 <h2>Children's privacy</h2>
-<p>The Kid Zone is designed to be used by children, and we have deliberately
-built it so that <strong>no information about a child is collected, transmitted,
-or stored anywhere other than on the family's own device.</strong> A child's
-chosen name, their familiar's name, and their progress never leave the phone or
-tablet they are using.</p>
-<p>Because we collect no personal information from anyone, we do not knowingly
-collect personal information from children under 13, and no parental consent
-mechanism is required. There is no chat, no messaging, no way for a child to
-communicate with anyone through this app, and no way for anyone to contact a
-child through it.</p>
-<p>If you are a parent or guardian and have any question about the Kid Zone, you
-are welcome to contact us at the address below.</p>
+<p>The Kid Zone is built for children, and we have deliberately made it so that
+<strong>nothing about a child is collected, transmitted, or stored anywhere
+except on the family's own device.</strong> A child's chosen name, their
+familiar's name, and their progress never leave the phone or tablet. There is no
+chat and no messaging in the Kid Zone: no child can send a message to anyone
+through this app, and no one can contact a child through it.</p>
+
+<p>The Temple Portal and the Cyber Altar are shared spaces intended for our adult
+community, and are not offered to children. When the app first opens it asks for
+your date of birth. If the answer indicates a child, those two shared spaces are
+not shown, so a child cannot post to them.</p>
+
+<p>We do not knowingly collect personal information from children under 13. If
+you are a parent or guardian and believe a child has posted something to a shared
+space, write to us and we will remove it promptly.</p>
 
 <h2>Location</h2>
 <p>The Astrolabe can use your device's location to draw the stars as they appear
-above you. Granting this is entirely optional &mdash; you can type coordinates in
-by hand, or search for a city instead, and the rest of the app works normally
-without it. When you do allow it, your coordinates are used on your device to
-perform the calculation and are never sent to us.</p>
+above you. This is entirely optional &mdash; you can type coordinates by hand or
+search for a city instead, and the rest of the app works normally without it.
+When you do allow it, your coordinates are used on your device to perform the
+calculation and are never sent to us.</p>
 
-<h2>When the app connects to the internet</h2>
-<p>The Temple is built to work offline. Two features reach out to the internet
-when you use them:</p>
+<h2>Other services the app contacts</h2>
 <ul>
-  <li><strong>City search</strong> in the Astrolabe sends only the place name you
-  typed to the Open-Meteo geocoding service, which returns coordinates and a time
-  zone. Nothing about you is included.</li>
-  <li><strong>Web fonts</strong> are loaded from Google Fonts the first time the
-  app runs, after which they are cached on your device.</li>
+  <li><strong>Open-Meteo</strong> &mdash; when you search for a city in the
+  Astrolabe, only the place name you typed is sent, and coordinates and a time
+  zone come back. Nothing about you is included.</li>
+  <li><strong>Google Fonts</strong> &mdash; typefaces are loaded the first time
+  the app runs, then cached on your device.</li>
+  <li><strong>Google Sheets</strong> &mdash; receives the Portal and Altar
+  submissions described above, on our behalf.</li>
 </ul>
-<p>These services will see the network request itself, including your device's IP
-address, as is normal for any internet connection. We do not receive that
-information.</p>
+<p>These services see the network request itself, including your device's IP
+address, as is normal for any internet connection.</p>
 
 <h2>What we do not do</h2>
 <ul>
   <li>We do not use analytics, tracking pixels, or advertising of any kind</li>
-  <li>We do not create accounts or profiles about you</li>
-  <li>We do not sell or share data, because we do not hold any</li>
+  <li>We do not create accounts or build profiles about you</li>
+  <li>We do not sell your information or share it with advertisers</li>
   <li>We do not use your information to train anything</li>
 </ul>
 
 <h2>Purchases</h2>
 <p>The Temple of the Obsidian Moon is a paid app. Your purchase is handled
-entirely by Google Play. We never see your payment details. Refunds are handled
+entirely by Google Play; we never see your payment details. Refunds are handled
 through Google Play under their standard terms.</p>
 
 <h2>Your rights</h2>
-<p>Because all of your information stays on your device, you already have
-complete control of it: clear the app's storage or uninstall the app and it is
-gone. There is nothing held elsewhere for us to return, correct, or delete on
-your behalf. If you would like to confirm this or ask anything about it, write to
-us at the address below.</p>
+<p>Anything stored on your device is already entirely under your control: clear
+the app's storage or uninstall it and it is gone. For anything you have posted to
+the Portal or the Altar, write to us and we will delete it.</p>
 
 <h2>Changes to this policy</h2>
-<p>If we ever add a feature that collects information, we will update this policy
-before that feature goes live and change the date at the top of this page. If the
-change affects children, we will obtain verifiable parental consent before
-collecting anything.</p>
+<p>If we add a feature that collects information, we will update this policy
+before it goes live and change the date at the top of this page. If any change
+affects children, we will obtain verifiable parental consent before collecting
+anything.</p>
 
 <h2>Contact</h2>
 <p>Temple of the Obsidian Moon<br>
-<!--EMAIL-->[YOUR CONTACT EMAIL]<!--/EMAIL--><br>
+[YOUR CONTACT EMAIL]<br>
 <a href="https://www.obsidianmoontemple.com">obsidianmoontemple.com</a></p>
 
 </main>

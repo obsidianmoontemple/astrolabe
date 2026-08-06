@@ -186,6 +186,46 @@ footer a { color: var(--amethyst-light); text-decoration: none; }
 }
 body.is-offline #offlineBar { display: block; }
 
+#ageGate {
+  position: fixed; inset: 0; z-index: 10000;
+  display: none; place-items: center;
+  background: rgba(4, 3, 8, 0.97);
+  padding: 24px;
+  overflow-y: auto;
+}
+body.gate-open #ageGate { display: grid; }
+body.gate-open { overflow: hidden; }
+
+.gate-card {
+  max-width: 420px; width: 100%;
+  background: linear-gradient(160deg, var(--obsidian-card), var(--indigo));
+  border: 1px solid var(--line); border-radius: 16px;
+  padding: 26px 22px; text-align: center;
+}
+.gate-card img { width: 74px; height: 74px; border-radius: 50%; margin-bottom: 12px; }
+.gate-card h2 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.35rem; margin: 0 0 6px; color: var(--moonwhite); font-weight: 600;
+}
+.gate-card p { color: var(--silver); font-size: .88rem; margin: 0 0 18px; }
+.gate-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
+.gate-row select {
+  flex: 1; padding: 11px 10px; min-height: 44px;
+  background: #0a0714; color: var(--moonwhite);
+  border: 1px solid var(--line); border-radius: 10px;
+  font-family: inherit; font-size: .95rem;
+}
+#gateGo {
+  width: 100%; min-height: 46px; padding: 12px;
+  background: var(--amethyst); color: #fff;
+  border: none; border-radius: 10px; cursor: pointer;
+  font-family: inherit; font-size: .95rem; letter-spacing: .06em;
+  touch-action: manipulation;
+}
+#gateGo:disabled { opacity: .45; cursor: default; }
+.gate-note { font-size: .74rem; color: rgba(173,171,204,.6); margin-top: 14px; }
+.gate-note a { color: var(--amethyst-light); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;
@@ -215,6 +255,22 @@ body.is-offline #offlineBar { display: block; }
   <a href="https://www.obsidianmoontemple.com" target="_blank" rel="noopener">obsidianmoontemple.com</a>
 </footer>
 
+<div id="ageGate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <div class="gate-card">
+    <img src="icon-192.png" alt="">
+    <h2 id="gateTitle">Before you enter</h2>
+    <p>Please tell us when you were born. This decides which halls of the Temple
+       are opened to you. We keep this on your device and never send it anywhere.</p>
+    <div class="gate-row">
+      <select id="gateMonth" aria-label="Birth month"></select>
+      <select id="gateYear" aria-label="Birth year"></select>
+    </div>
+    <button id="gateGo" disabled>Enter the Temple</button>
+    <p class="gate-note">A grown-up should help with this.
+       <a href="privacy.html">Privacy policy</a></p>
+  </div>
+</div>
+
 <div id="offlineBar">You're offline — anything you send will need a connection. Everything else keeps working.</div>
 
 <script>
@@ -236,7 +292,31 @@ const SECTIONS = [
     svg: '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="9" cy="10" r="1.1" fill="currentColor"/><circle cx="15" cy="10" r="1.1" fill="currentColor"/><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0" fill="none" stroke="currentColor" stroke-width="1.4"/>' }
 ];
 
-document.getElementById('grid').innerHTML = SECTIONS.map(s => `
+/* ---------- neutral age gate ---------- */
+// Asked as an open date of birth rather than "are you over 13?", so the
+// question doesn't hint at the answer that unlocks more. Stored on device only.
+const GATE_KEY = 'omt.birth.v1';
+// The Portal and the Altar publish what you write to every other user, so they
+// are closed to children. Everything else is local to the device and stays open.
+const ADULT_ONLY = ['pages/portal.html', 'portal.html', 'pages/altar.html', 'altar.html'];
+
+function readGate() {
+  try { return JSON.parse(localStorage.getItem(GATE_KEY) || 'null'); } catch (e) { return null; }
+}
+
+function ageFrom(rec) {
+  if (!rec) return null;
+  const now = new Date();
+  let a = now.getFullYear() - rec.y;
+  if ((now.getMonth() + 1) < rec.m) a--;
+  return a;
+}
+
+function renderGrid(age) {
+  const allowed = (age !== null && age >= 13)
+    ? SECTIONS
+    : SECTIONS.filter(s => !ADULT_ONLY.includes(s.href));
+  document.getElementById('grid').innerHTML = allowed.map(s => `
   <a class="card" href="${s.href}">
     <span class="glyph"><svg viewBox="0 0 24 24" aria-hidden="true">${s.svg}</svg></span>
     <span>
@@ -244,6 +324,40 @@ document.getElementById('grid').innerHTML = SECTIONS.map(s => `
       <p>${s.blurb}</p>
     </span>
   </a>`).join('');
+}
+
+(function initGate() {
+  const rec = readGate();
+  if (rec) { renderGrid(ageFrom(rec)); return; }
+
+  const monthSel = document.getElementById('gateMonth');
+  const yearSel  = document.getElementById('gateYear');
+  const go       = document.getElementById('gateGo');
+  const months = ['January','February','March','April','May','June','July',
+                  'August','September','October','November','December'];
+
+  monthSel.innerHTML = '<option value="">Month</option>' +
+    months.map((m, i) => `<option value="${i + 1}">${m}</option>`).join('');
+
+  const thisYear = new Date().getFullYear();
+  let years = '<option value="">Year</option>';
+  for (let y = thisYear; y >= thisYear - 110; y--) years += `<option value="${y}">${y}</option>`;
+  yearSel.innerHTML = years;
+
+  const check = () => { go.disabled = !(monthSel.value && yearSel.value); };
+  monthSel.addEventListener('change', check);
+  yearSel.addEventListener('change', check);
+
+  go.addEventListener('click', () => {
+    const rec = { m: Number(monthSel.value), y: Number(yearSel.value) };
+    try { localStorage.setItem(GATE_KEY, JSON.stringify(rec)); } catch (e) {}
+    document.body.classList.remove('gate-open');
+    renderGrid(ageFrom(rec));
+  });
+
+  document.body.classList.add('gate-open');
+  renderGrid(null);   // draw the safe set behind the gate
+})();
 
 /* ---------- moon phase, computed locally so it works offline ---------- */
 (function () {
