@@ -72,6 +72,7 @@
             position: absolute; top: 12px; width: 100%; text-align: center; z-index: 4;
         }
         .altar-title {
+            padding-top: 46px;
             font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 6px;
             color: var(--accent-gold); text-transform: uppercase; margin: 0;
             text-shadow: 0 0 15px rgba(212, 175, 55, 0.5), 0 0 30px rgba(157, 78, 223, 0.3);
@@ -511,8 +512,8 @@ body.omt-offline #omtOfflineBar { display: block; }
         <div class="intent-modal" id="basinModal">
             <div class="modal-box">
                 <h4>Place Altar Offering</h4>
-                <div class="modal-subtitle">Donation Verification Required</div>
-                <input type="text" id="offeringUser" placeholder="Your Verified Name / Initials" maxlength="20">
+                <div class="modal-subtitle">Choose what you lay upon the altar</div>
+                <input type="text" id="offeringUser" placeholder="Your Name / Initials" maxlength="20">
                 <select id="offeringSelector">
                     <optgroup label="✨ REVERED TRADITIONAL TITHES">
                         <option value="coin|Silver Coin Portfolio">Silver Coin</option>
@@ -570,24 +571,7 @@ body.omt-offline #omtOfflineBar { display: block; }
                         <option value="yuleStar|Yule Star Ornament">Yule Star</option>
                     </optgroup>
                 </select>
-                <button id="submitOfferingBtn">Validate & Dedicate</button>
-            </div>
-        </div>
-
-        <!-- CONTRIBUTION TITHE MODAL -->
-        <div id="titheModal" class="intent-modal">
-            <div class="modal-box">
-                <h4>Temple Contribution</h4>
-                <div class="modal-subtitle">A contribution to the temple current is required before an offering may be placed.</div>
-                <input id="titheName" type="text" placeholder="Your Name">
-                <input id="titheReceipt" type="password" placeholder="Contribution Verification Code">
-                <select id="titheAmount">
-                    <option value="1">One Silver Coin</option>
-                    <option value="5">Five Silver Coins</option>
-                    <option value="10">Ten Silver Coins</option>
-                    <option value="25">Twenty-Five Silver Coins</option>
-                </select>
-                <button id="submitTitheBtn">Dedicate Contribution</button>
+                <button id="submitOfferingBtn">Dedicate Offering</button>
             </div>
         </div>
 
@@ -846,7 +830,6 @@ body.omt-offline #omtOfflineBar { display: block; }
 
         const basinTrigger = document.getElementById('basinTrigger');
         const basinModal = document.getElementById('basinModal');
-        const titheModal = document.getElementById('titheModal');
         const vaultModal = document.getElementById('vaultModal');
         const offeringGrid = document.getElementById('offeringGrid');
         
@@ -1050,19 +1033,6 @@ body.omt-offline #omtOfflineBar { display: block; }
                 }
                 return;
             }
-            titheModal.classList.add('active');
-        });
-
-        document.getElementById('submitTitheBtn').addEventListener('click', () => {
-            const code = cleanInput(document.getElementById('titheReceipt').value, 30).toUpperCase();
-            const usedCodes = safeGet(STORAGE.USED_CODES, []);
-
-            if (!CONTRIBUTION_CODES.includes(code)) { alert('Invalid contribution verification code.'); return; }
-            if (usedCodes.includes(code)) { alert('That contribution code has already been redeemed.'); return; }
-
-            usedCodes.push(code); safeSet(STORAGE.USED_CODES, usedCodes);
-            titheModal.classList.remove('active');
-            document.getElementById('offeringUser').value = cleanInput(document.getElementById('titheName').value, 20);
             basinModal.classList.add('active');
         });
 
