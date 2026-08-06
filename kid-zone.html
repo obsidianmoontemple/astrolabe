@@ -567,7 +567,16 @@ body.omt-offline #omtOfflineBar { display: block; }
 /* ================================================================
    PARENT / CONTEST ROSTER SYNC
    ================================================================ */
-const ROSTER_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwYTr-v6AtJCou3yT8yNTsI0WjPiEVsFU9NLxHLz0--no6EjdNiWYqqa3mO4WH5XYId/exec';
+/* DELIBERATELY EMPTY - DO NOT REFILL WITHOUT READING THIS.
+   The Kid Zone is used by children. Sending a child's chosen name or any
+   freeform text they type to an external service makes this app subject to
+   COPPA and Google Play's Families policy, which require verifiable parental
+   consent, a neutral age gate, and an in-app online-safety reminder before a
+   child may exchange freeform information.
+   With this blank, every network call below short-circuits and nothing about a
+   child ever leaves the device. Restoring the URL without building the consent
+   flow first would put the Play listing at risk. */
+const ROSTER_ENDPOINT = '';
 let rosterSyncTimer = null;
 function scheduleRosterSync(){
   if(!ROSTER_ENDPOINT) return;
@@ -652,14 +661,11 @@ function renderTalk(){
 
   el.innerHTML = `
     <div class="reveal-box" style="text-align:left;">
-      <b>Message Your Guide:</b> Send a note to ${escapeHtml(displayName)} anytime. Responses will appear right here in real time!
+      <b>${escapeHtml(displayName)} is listening.</b> Sending letters isn't ready
+      yet — it's coming in a later spell. For now, ${escapeHtml(displayName)}
+      stays right here with you, and everything you do together is kept safe on
+      this device alone.
     </div>
-    <textarea id="talk-input" maxlength="${MESSAGE_MAX_LEN}" placeholder="What do you want to tell ${escapeHtml(displayName)}?" style="width:100%;min-height:90px;margin-top:12px;padding:12px;border-radius:12px;border:1px solid rgba(241,238,251,.3);background:rgba(255,255,255,.05);color:var(--moon);font-family:inherit;font-size:.9rem;"></textarea>
-    <div style="text-align:center;margin:12px 0;">
-      <button class="nav-btn primary" onclick="sendFamiliarMessage()" ${!ROSTER_ENDPOINT?'disabled':''}>Send 💌</button>
-    </div>
-    ${!ROSTER_ENDPOINT ? `<div class="progress-note" style="text-align:center;">This feature isn't set up yet — check back soon!</div>` : ''}
-    <div id="talk-thread" style="margin-top:18px;"></div>
   `;
   
   renderTalkThread();
@@ -1723,7 +1729,7 @@ function renderFamiliar(){
     </div>
     <div id="care-panel">${renderCarePanelHTML()}</div>
     <div class="pet-bond">Bond XP: ${xpInLevel}/10 toward Level ${level+1}${p.bond>=150?' &middot; Beloved Companion 👑':p.bond>=60?' &middot; Close Friend ⭐':''}</div>
-    ${stage.key!=='egg' ? `<div style="text-align:center;margin:14px 0;"><button class="nav-btn primary" onclick="goTalk()">💬 Talk to ${displayName}</button></div>` : ''}
+    
     <p style="font-size:.8rem;color:var(--moon-dim);margin:18px 0 8px;">${stage.key==='egg' ? "Choose your egg's color" : 'Recolor your familiar'}</p>
     <div class="familiar-row">${colorSwatches}</div>
   `;
