@@ -2,7 +2,7 @@
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target": {
         "namespace": "android_app",
-        "package_name": "com.obsidianmoontemple.sky.twa",
-        "sha256_cert_fingerprints": ["55:AF:81:AE:99:8A:49:83:79:5F:A3:CC:52:B2:BA:48:59:71:90:62:D6:3D:E8:72:CB:63:8F:22:41:52:F9:2E"]
+        "package_name": "com.obsidianmoontemple.temple",
+        "sha256_cert_fingerprints": ["44:03:B3:79:DD:3E:B7:B3:34:38:27:B0:CA:00:95:A7:F3:D4:6F:41:9C:62:19:1B:E6:AC:4A:95:2D:10:C7:17"]
       }
     }]
