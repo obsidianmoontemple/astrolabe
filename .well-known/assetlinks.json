@@ -1,11 +1,8 @@
-[
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "com.obsidianmoontemple.temple",
-      "sha256_cert_fingerprints":
-        ["C9:4C:0C:A4:1F:FA:25:CD:34:67:77:6F:A8:57:25:EA:3A:51:5A:BE:B2:71:3D:21:D5:09:A2:7A:46:DF:85:39"]
-    }
-  }
-]
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.obsidianmoontemple.sky.twa",
+        "sha256_cert_fingerprints": ["55:AF:81:AE:99:8A:49:83:79:5F:A3:CC:52:B2:BA:48:59:71:90:62:D6:3D:E8:72:CB:63:8F:22:41:52:F9:2E"]
+      }
+    }]
