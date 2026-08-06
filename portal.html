@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temple Altar Space</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050408;
+            --panel-bg: rgba(14, 11, 22, 0.92);
+            --panel-border: rgba(157, 78, 223, 0.35);
+            --accent-gold: #d4af37;
+            --accent-gold-glow: rgba(212, 175, 55, 0.4);
+            --accent-purple: #9d4edf;
+            --accent-purple-glow: rgba(157, 78, 223, 0.5);
+            --text-main: #e2e1e8;
+            --text-muted: #8a8899;
+            --altar-sky: #16161a;
+            --altar-depth: #070708;
+            --altar-halo: rgba(121, 40, 202, 0.25);
+            --altar-glow: rgba(121, 40, 202, 0.3);
+            --altar-border: #2a2833;
+            --altar-accent-a: rgba(157,78,223,0.18);
+            --altar-accent-b: rgba(255,0,128,0.12);
+        }
+
+        * { box-sizing: border-box; }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: var(--bg-dark);
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            overflow: hidden; user-select: none;
+        }
+
+        .temple-chamber {
+            position: relative; width: 98%; max-width: 1200px; height: 96vh; max-height: 850px;
+            background:
+                radial-gradient(ellipse 70% 40% at 50% 10%, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0) 70%),
+                radial-gradient(circle at 50% 18%, var(--altar-halo) 0%, rgba(0,0,0,0) 55%),
+                linear-gradient(180deg, var(--altar-sky) 0%, var(--altar-depth) 70%, #030205 100%);
+            border: 2px solid var(--altar-border);
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.95), inset 0 0 140px rgba(0,0,0,0.9);
+            display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
+            border-radius: 14px; overflow: hidden;
+            transition: background 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+            padding: 15px 20px 25px 20px;
+        }
+
+        #particleCanvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2;
+        }
+
+        .ambient-glow {
+            position: absolute; top: 5%; width: 75%; height: 50%;
+            background: radial-gradient(circle, var(--altar-glow) 0%, rgba(0,0,0,0) 70%);
+            z-index: 1; pointer-events: none; filter: blur(40px);
+            animation: pulse-halo 6s infinite ease-in-out;
+            transition: background 0.8s ease;
+        }
+
+        @keyframes pulse-halo {
+            0% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 0.95; transform: scale(1.04); }
+            100% { opacity: 0.6; transform: scale(1); }
+        }
+
+        .altar-header {
+            position: absolute; top: 12px; width: 100%; text-align: center; z-index: 4;
+        }
+        .altar-title {
+            font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 6px;
+            color: var(--accent-gold); text-transform: uppercase; margin: 0;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5), 0 0 30px rgba(157, 78, 223, 0.3);
+        }
+
+        .seasonal-decor-layer {
+            position: absolute; inset: 0; pointer-events: none; z-index: 1;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            padding: 10px 20px; overflow: hidden;
+        }
+        .decor-item { position: absolute; transition: all 0.8s ease; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8)); }
+
+        .altar-table-wrapper {
+            position: relative; width: 100%; height: 82%; max-height: 640px;
+            display: flex; flex-direction: column; align-items: center; z-index: 3;
+        }
+
+        .altar-table {
+            position: relative; width: 100%; height: 100%;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 3%, transparent 8%),
+                radial-gradient(ellipse 100% 50% at 50% 0%, var(--altar-accent-a) 0%, rgba(0,0,0,0) 70%),
+                var(--panel-bg);
+            backdrop-filter: blur(16px);
+            border: 2px solid var(--panel-border);
+            border-top: 3px solid rgba(255, 235, 170, 0.4);
+            box-shadow:
+                0 25px 50px rgba(0, 0, 0, 0.95),
+                0 10px 0 #0d0a14,
+                0 20px 25px rgba(0, 0, 0, 0.8),
+                inset 0 2px 2px rgba(255, 255, 255, 0.25),
+                inset 0 -30px 50px rgba(0, 0, 0, 0.8);
+            display: grid; grid-template-columns: 1.1fr 1.2fr 1.1fr; gap: 16px; padding: 16px;
+            border-radius: 12px;
+        }
+
+        .altar-legs {
+            width: 94%; height: 24px;
+            background: linear-gradient(180deg, #120e1c 0%, #050408 100%);
+            border: 1px solid var(--panel-border); border-top: none;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.9);
+            display: flex; justify-content: space-between; padding: 0 40px;
+        }
+        .altar-leg-pillar {
+            width: 60px; height: 100%;
+            background: linear-gradient(90deg, #1c172b 0%, #0a0812 50%, #1c172b 100%);
+            border-left: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(0,0,0,0.8);
+        }
+
+        @media (max-width: 900px) {
+            body, html { overflow: auto; height: auto; }
+            .temple-chamber { height: auto; max-height: none; margin: 10px 0; }
+            .altar-table { grid-template-columns: 1fr; height: auto; gap: 20px; }
+            .altar-table-wrapper { height: auto; max-height: none; }
+        }
+
+        .altar-zone {
+            position: relative;
+            background:
+                linear-gradient(145deg, rgba(24, 20, 36, 0.85), rgba(8, 7, 12, 0.95)),
+                radial-gradient(ellipse 100% 40% at 50% 0%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0) 60%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow:
+                inset 0 3px 8px rgba(0,0,0,0.85),
+                inset 0 -1px 0 rgba(255,255,255,0.08),
+                0 6px 16px rgba(0,0,0,0.6);
+            border-radius: 8px;
+            display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+            padding: 12px; box-sizing: border-box;
+        }
+        .altar-zone::before {
+            content: ""; position: absolute; inset: 5px; border-radius: 6px; pointer-events: none;
+            border: 1px solid rgba(212, 175, 55, 0.12);
+        }
+
+        .zone-label {
+            font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 3px;
+            color: var(--accent-gold); text-transform: uppercase; pointer-events: none;
+            margin-bottom: 6px; opacity: 0.9;
+            text-shadow: 0 0 8px var(--accent-gold-glow);
+        }
+
+        /* --- LEFT FLANK --- */
+        .candle-shrine { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
+        .candle-row { display: flex; justify-content: space-around; width: 100%; padding: 4px 0; }
+        .candle-container { display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative; width: 30px; }
+        
+        .flame {
+            width: 10px; height: 24px;
+            background: radial-gradient(ellipse at bottom, #fff59e 0%, #ff8c00 50%, rgba(255,0,0,0) 100%);
+            border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 15px #ffb700, 0 0 30px #ff5100;
+            opacity: 0; transform: scale(0.3); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-bottom: 2px;
+        }
+        .candle-container.lit .flame { opacity: 1; transform: scale(1); animation: flicker 1.5s infinite alternate ease-in-out; }
+        
+        @keyframes flicker {
+            0% { transform: scale(1) rotate(-1.5deg); opacity: 0.92; }
+            100% { transform: scale(1.1) rotate(2deg); box-shadow: 0 0 18px #ffb700, 0 0 35px #ff5100; opacity: 1; }
+        }
+
+        .wax-stick {
+            position: relative;
+            width: 16px; height: 42px;
+            background: linear-gradient(90deg, #3a3a45 0%, #1c1c22 18%, #24242c 50%, #16161b 82%, #0c0c0f 100%);
+            border-radius: 3px 3px 1px 1px; transition: all 0.4s ease;
+            border-bottom: 2px solid #0f0f12;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.08), inset -2px 0 3px rgba(0,0,0,0.5), 0 4px 6px rgba(0,0,0,0.6);
+        }
+        .wax-stick::after {
+            content: ""; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%);
+            width: 28px; height: 5px; border-radius: 50%;
+            background: radial-gradient(ellipse, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 75%);
+            transition: background 0.4s;
+        }
+        .candle-container.lit .wax-stick {
+            background: linear-gradient(90deg, #d896ff 0%, #8a2be2 18%, #9d4edf 50%, #6a0ded 82%, #3a007d 100%);
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.2), inset -2px 0 3px rgba(0,0,0,0.4), 0 0 15px var(--accent-purple-glow);
+        }
+        .candle-container.lit .wax-stick::after {
+            background: radial-gradient(ellipse, var(--accent-purple-glow) 0%, rgba(0,0,0,0) 75%);
+        }
+
+        .ledger-box {
+            width: 100%; flex-grow: 1; min-height: 160px;
+            background: rgba(5, 4, 8, 0.85);
+            border: 1px solid var(--panel-border);
+            border-radius: 6px; padding: 10px;
+            display: flex; flex-direction: column;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+        }
+        .ledger-header {
+            font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 2px;
+            color: var(--accent-gold); text-transform: uppercase;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+            padding-bottom: 5px; margin-bottom: 6px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .sync-status { font-size: 0.58rem; color: var(--text-muted); text-transform: none; letter-spacing: 0; }
+        .clear-ledger { cursor: pointer; color: var(--accent-purple); transition: color 0.2s; font-size: 0.6rem; }
+        .clear-ledger:hover { color: #ff5555; }
+        
+        .ledger-scroll {
+            flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;
+            max-height: 200px; padding-right: 4px;
+        }
+        .ledger-scroll::-webkit-scrollbar { width: 4px; }
+        .ledger-scroll::-webkit-scrollbar-thumb { background: var(--panel-border); border-radius: 2px; }
+
+        .ledger-entry {
+            font-size: 0.7rem; line-height: 1.3; color: var(--text-main);
+            background: rgba(255,255,255,0.03); border-left: 2px solid var(--accent-purple);
+            padding: 5px 7px; border-radius: 0 4px 4px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .entry-meta { font-family: 'Cinzel', serif; font-size: 0.55rem; color: var(--text-muted); margin-bottom: 2px; }
+        .entry-user { color: var(--accent-gold); font-weight: bold; }
+        .entry-intent { color: #dcdbe5; font-style: italic; }
+
+        /* --- CENTRAL FOCUS --- */
+        .central-shrine { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+        
+        .deity-canopy {
+            width: 100%; padding: 6px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; text-align: center; border-radius: 6px;
+            transition: background 0.3s;
+        }
+        .deity-canopy:hover { background: rgba(255,255,255,0.05); }
+
+        .relic-totem {
+            position: relative;
+            width: 42px; height: 42px; border: 1px solid var(--accent-gold); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: radial-gradient(circle at 35% 30%, #4a3b63 0%, #231d30 50%, #0d0c12 100%);
+            box-shadow: 0 0 18px rgba(212, 175, 55, 0.3), inset 0 2px 3px rgba(255,255,255,0.2), inset 0 -3px 5px rgba(0,0,0,0.7);
+            margin-bottom: 4px;
+            animation: float-relic 4s infinite alternate ease-in-out;
+        }
+        .relic-totem::after {
+            content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            width: 34px; height: 6px; margin-top: 2px; border-radius: 50%;
+            background: radial-gradient(ellipse, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 75%);
+            animation: float-relic-shadow 4s infinite alternate ease-in-out;
+        }
+        .relic-svg { width: 22px; height: 22px; fill: none; stroke: var(--accent-gold); stroke-width: 1.5; filter: drop-shadow(0 0 5px var(--accent-purple-glow)); }
+        .deity-graphic { font-family: 'Cinzel', serif; font-size: 0.85rem; letter-spacing: 2px; color: var(--text-main); font-weight: bold; text-shadow: 0 0 8px var(--accent-gold-glow); }
+        .deity-subtitle { font-size: 0.58rem; color: var(--text-muted); letter-spacing: 1px; margin-top: 2px; text-transform: uppercase; }
+
+        @keyframes float-relic {
+            0% { transform: translateY(0px); box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 3px rgba(255,255,255,0.2); }
+            100% { transform: translateY(-5px); box-shadow: 0 10px 25px var(--accent-purple-glow), inset 0 2px 3px rgba(255,255,255,0.2); }
+        }
+        @keyframes float-relic-shadow {
+            0% { opacity: 0.9; transform: translateX(-50%) scale(1); }
+            100% { opacity: 0.4; transform: translateX(-50%) scale(0.65); }
+        }
+
+        .sigil-forge { width: 100%; display: flex; flex-direction: column; align-items: center; }
+        .canvas-shield {
+            position: relative; width: 130px; height: 130px;
+            background: radial-gradient(circle at 40% 32%, rgba(45,35,62,0.95) 0%, rgba(20,15,30,0.95) 45%, rgba(5,5,8,0.98) 100%);
+            border: 1px solid var(--panel-border); border-radius: 50%; margin-bottom: 8px;
+            box-shadow:
+                0 12px 28px rgba(0,0,0,0.8),
+                0 0 25px rgba(157, 78, 223, 0.25),
+                inset 0 3px 5px rgba(255,255,255,0.15),
+                inset 0 -4px 10px rgba(0,0,0,0.7),
+                inset 0 0 20px var(--accent-purple-glow);
+        }
+        canvas#sigilCanvas { position: absolute; top: 0; left: 0; width: 130px; height: 130px; }
+
+        .sigil-input-row { display: flex; width: 100%; gap: 6px; }
+        .sigil-input-row input {
+            flex: 1; background: rgba(5,4,8,0.85); border: 1px solid var(--panel-border); color: var(--text-main);
+            font-size: 0.7rem; padding: 6px 8px; outline: none; border-radius: 4px; text-align: center;
+        }
+        .sigil-input-row button {
+            background: #1d182b; border: 1px solid var(--accent-purple); color: var(--text-main);
+            font-size: 0.58rem; font-family: 'Cinzel', serif; cursor: pointer; text-transform: uppercase; padding: 0 8px; border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .sigil-input-row button:hover { background: var(--accent-purple); color: #fff; box-shadow: 0 0 12px var(--accent-purple-glow); }
+
+        /* --- RIGHT FLANK --- */
+        .offering-shrine { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
+        .offering-slab-grid {
+            width: 100%; flex-grow: 1; min-height: 100px;
+            display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr);
+            gap: 6px; align-items: center; justify-items: center; padding: 4px;
+        }
+        
+        .offered-token {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 1px solid var(--panel-border);
+            background: radial-gradient(circle at 38% 32%, #3a3152 0%, #242033 40%, #0c0b12 85%);
+            display: flex; align-items: center; justify-content: center;
+            position: relative; cursor: pointer;
+            box-shadow: inset 0 2px 3px rgba(255,255,255,0.15), inset 0 -3px 6px rgba(0,0,0,0.8), 0 6px 10px rgba(0,0,0,0.6);
+            transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.2s, box-shadow 0.2s;
+        }
+        .offered-token::after {
+            content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            width: 28px; height: 5px; margin-top: 2px; border-radius: 50%;
+            background: radial-gradient(ellipse, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 75%);
+            transition: opacity 0.2s;
+        }
+        .offered-token:hover { transform: scale(1.15); border-color: var(--accent-gold); box-shadow: 0 0 15px var(--accent-gold-glow), inset 0 2px 3px rgba(255,255,255,0.2); z-index: 25; }
+        
+        .offering-image {
+            width: 26px; height: 26px; object-fit: contain; display: block;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+        }
+
+        .offered-token:hover .token-tooltip { opacity: 1; pointer-events: auto; transform: translate(-50%, -8px); }
+        .token-tooltip {
+            position: absolute; bottom: 100%; left: 50%; transform: translate(-50%, 0px);
+            background: rgba(12, 11, 18, 0.95); backdrop-filter: blur(8px);
+            border: 1px solid var(--panel-border); color: var(--text-main);
+            padding: 4px 8px; border-radius: 4px; white-space: nowrap;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.9); opacity: 0; pointer-events: none;
+            transition: all 0.2s ease; z-index: 30; text-align: center;
+            font-size: 0.58rem; line-height: 1.25;
+        }
+        .token-tooltip .item-title { color: var(--accent-gold); font-family: 'Cinzel', serif; font-weight: bold; font-size: 0.62rem; display: block; }
+        .token-tooltip .giver-name { color: var(--text-muted); font-style: italic; font-size: 0.52rem; display: block; margin-top: 1px; }
+
+        .basin-altar-box { display: flex; flex-direction: column; align-items: center; cursor: pointer; margin-top: 4px; }
+        .offering-basin {
+            position: relative;
+            width: 50px; height: 25px; border: 2px solid var(--panel-border); border-radius: 0 0 50px 50px;
+            background: linear-gradient(180deg, #201a30 0%, #08070e 100%);
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.85), 0 6px 10px rgba(0,0,0,0.6), 0 0 15px var(--altar-glow);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            overflow: hidden;
+        }
+        .offering-basin::before {
+            content: ""; position: absolute; top: 3px; left: 5px; width: 38px; height: 6px; border-radius: 50%;
+            background: radial-gradient(ellipse at 35% 30%, rgba(157,78,223,0.65) 0%, rgba(157,78,223,0.15) 60%, rgba(0,0,0,0) 100%);
+        }
+        .basin-altar-box:hover .offering-basin { border-color: var(--accent-purple); box-shadow: 0 0 20px var(--accent-purple-glow); }
+        .basin-stand { width: 18px; height: 9px; background: #12101a; border-top: 1px solid var(--panel-border); }
+        .basin-label { font-family: 'Cinzel', serif; font-size: 0.58rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+        /* --- MODALS --- */
+        .intent-modal {
+            position: fixed; inset: 0; background: rgba(4, 3, 6, 0.88); backdrop-filter: blur(8px); z-index: 100;
+            display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .intent-modal.active { opacity: 1; pointer-events: auto; }
+        .modal-box {
+            background: #14111f; border: 1px solid var(--panel-border); padding: 22px; border-radius: 8px;
+            width: 320px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.9), 0 0 25px rgba(157, 78, 223, 0.2); position: relative;
+        }
+        .modal-box h4 { margin: 0 0 4px 0; font-family: 'Cinzel', serif; font-size: 0.92rem; letter-spacing: 2px; color: var(--accent-gold); text-transform: uppercase; }
+        .modal-subtitle { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .modal-box input, .modal-box select {
+            width: 100%; background: #08070e; border: 1px solid var(--panel-border); color: var(--text-main);
+            padding: 8px 10px; font-size: 0.72rem; outline: none; border-radius: 4px; margin-bottom: 10px; box-sizing: border-box; text-align: center;
+        }
+        .modal-box select optgroup { background: #141417; color: #9d4edf; }
+        .modal-box button {
+            background: #211a33; border: 1px solid var(--accent-purple); color: var(--text-main);
+            padding: 8px 14px; font-size: 0.65rem; font-family: 'Cinzel', serif; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            transition: all 0.2s; border-radius: 4px; margin-top: 4px;
+        }
+        .modal-box button:hover { background: var(--accent-purple); color: #fff; box-shadow: 0 0 15px var(--accent-purple-glow); }
+
+        .vault-log-container {
+            width: 100%; height: 180px; background: #08070e; border: 1px solid var(--panel-border); border-radius: 4px;
+            margin-top: 10px; text-align: left; overflow-y: auto; padding: 8px; box-sizing: border-box;
+        }
+        .vault-entry { font-size: 0.62rem; color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 5px 0; }
+        .vault-entry span { color: var(--accent-gold); font-weight: bold; }
+    </style>
+<meta name="theme-color" content="#07060a">
+<link rel="manifest" href="../manifest.json">
+
+<style>
+/* ==== mobile hardening (added for the Temple app build) ==== */
+html { -webkit-text-size-adjust: 100%; }
+
+/* nothing should ever force a sideways scroll on a phone */
+body { overflow-x: hidden; }
+img, canvas, svg, video, iframe { max-width: 100%; }
+
+/* kill the 300ms double-tap delay and give fingers a real target */
+button, [role="button"], a.btn, .nav-btn, .action-btn, .culture-btn, .chap-btn {
+  touch-action: manipulation;
+}
+@media (pointer: coarse) and (max-width: 600px) {
+  button, [role="button"], .nav-btn, .action-btn { min-height: 44px; }
+}
+
+/* respect the system setting - also saves battery on the particle canvases */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* offline notice - shown only when the device actually drops connection */
+#omtOfflineBar {
+  display: none;
+  position: fixed; left: 0; right: 0; bottom: 0;
+  z-index: 99999;
+  background: #2a1d00; color: #ffe2a8;
+  border-top: 1px solid #ffcc66;
+  font: 500 13px/1.4 system-ui, sans-serif;
+  text-align: center; padding: 10px 14px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+}
+body.omt-offline #omtOfflineBar { display: block; }
+</style>
+</head>
+<body>
+
+    <div class="temple-chamber">
+        <canvas id="particleCanvas"></canvas>
+        <div class="ambient-glow" id="sabbatGlow"></div>
+        
+        <div class="seasonal-decor-layer" id="seasonalDecorLayer"></div>
+
+        <div class="altar-header">
+            <h1 class="altar-title">Temple Altar Space</h1>
+        </div>
+
+        <!-- CANDLE INTENT MODAL -->
+        <div class="intent-modal" id="intentModal">
+            <div class="modal-box">
+                <h4>Whisper Intent</h4>
+                <div class="modal-subtitle">Set Focus Current</div>
+                <input type="text" id="userInput" placeholder="Seeker Name / Initials" maxlength="20">
+                <input type="text" id="intentInput" placeholder="State your focus..." maxlength="50">
+                <button id="submitIntentBtn">Light Candle</button>
+            </div>
+        </div>
+
+        <!-- FULL PANTHEON & SEASON SELECTION MODAL -->
+        <div class="intent-modal" id="deityModal">
+            <div class="modal-box" style="width: 340px;">
+                <h4>Evoke Seasonal Current</h4>
+                <div class="modal-subtitle">System Authorization Required</div>
+                <input type="password" id="adminPassInput" placeholder="Enter Secret Code">
+                <select id="deitySelector">
+                    <optgroup label="✨ TEMPLE PRIME CURRENTS">
+                        <option value="The Obsidian Mother|Temple Prime Current|prime">The Obsidian Mother</option>
+                        <option value="Hecate|Moon: Crossroads Queen|moon">Hecate</option>
+                    </optgroup>
+                    <optgroup label="🌱 SPRING & EQUINOXES (OSTARA)">
+                        <option value="Brigid|Celtic: Hearth Threshold|flame">Brigid</option>
+                        <option value="Persephone|Greek: Return of Maiden|flower">Persephone</option>
+                        <option value="Freyja|Norse: Spring Fertility|fertility">Freyja</option>
+                        <option value="Eostre|Germanic: Dawn Goddess|dawn">Eostre</option>
+                    </optgroup>
+                    <optgroup label="☀️ SUMMER & SOLSTICES (LITHA)">
+                        <option value="Belenos|Celtic: Sun Fire God|sunwheel">Belenos</option>
+                        <option value="Lugh|Celtic: Harvest King|crown">Lugh</option>
+                        <option value="Freyr|Norse: Summer Growth|rain">Freyr</option>
+                        <option value="Horus|Egyptian: Sky Solar Peak|eye">Horus</option>
+                        <option value="Apollo|Greek: Divine Warmth|sun">Apollo</option>
+                    </optgroup>
+                    <optgroup label="🍂 AUTUMN & EQUINOXES (MABON)">
+                        <option value="Demeter|Greek: Agriculture Harvest|harvest">Demeter</option>
+                        <option value="Dionysus|Greek: Sacred Grape Vine|vine">Dionysus</option>
+                        <option value="Mabon|Welsh: Second Harvest Light|horn">Mabon</option>
+                        <option value="Chang'e|Chinese: Autumn Moon Goddess|lunar">Chang'e</option>
+                    </optgroup>
+                    <optgroup label="❄️ WINTER & SOLSTICES (YULE)">
+                        <option value="The Cailleach|Celtic: Winter Crone Ruler|staff">The Cailleach</option>
+                        <option value="Skaði|Norse: Mountains & Hunt|bow">Skaði</option>
+                        <option value="Hades & Persephone|Greek: Underworld Dark Reign|gate">Hades & Persephone</option>
+                    </optgroup>
+                </select>
+                <select id="altarThemeSelector">
+                    <optgroup label="Seasonal Altar Dressing">
+                        <option value="auto">Auto Seasonal Wheel</option>
+                        <option value="imbolc">Imbolc - Candle Thaw</option>
+                        <option value="ostara">Ostara - Spring Bloom</option>
+                        <option value="beltane">Beltane - Fire Blossom</option>
+                        <option value="litha">Litha - Solar Crown</option>
+                        <option value="lammas">Lammas - First Harvest</option>
+                        <option value="mabon">Mabon - Autumn Balance</option>
+                        <option value="samhain">Samhain - Veil Night</option>
+                        <option value="yule">Yule - Winter Evergreen</option>
+                    </optgroup>
+                </select>
+                <button id="submitDeityBtn">Manifest Current</button>
+            </div>
+        </div>
+
+        <!-- DIGITAL BASIN OFFERING MODAL -->
+        <div class="intent-modal" id="basinModal">
+            <div class="modal-box">
+                <h4>Place Altar Offering</h4>
+                <div class="modal-subtitle">Donation Verification Required</div>
+                <input type="text" id="offeringUser" placeholder="Your Verified Name / Initials" maxlength="20">
+                <select id="offeringSelector">
+                    <optgroup label="✨ REVERED TRADITIONAL TITHES">
+                        <option value="coin|Silver Coin Portfolio">Silver Coin</option>
+                        <option value="crystal|Amethyst / Quartz Geode">Quartz Crystal</option>
+                        <option value="sage|Woven White Sage Bundle">White Sage Bundle</option>
+                        <option value="oil|Sacred Anointing Oil">Anointing Elixir Vial</option>
+                        <option value="incense|Myrrh Resins & Charcoal">Myrrh Incense</option>
+                    </optgroup>
+                    <optgroup label="🕯️ IMBOLC — CANDLE THAW" data-sabbat="imbolc">
+                        <option value="imbolcCandle|Imbolc Hearth Candle">Hearth Candle</option>
+                        <option value="milkBowl|Bowl of Milk">Bowl of Milk</option>
+                        <option value="snowdrop|Snowdrop Bloom">Snowdrop Bloom</option>
+                        <option value="hearthEmber|Hearth Ember">Hearth Ember</option>
+                    </optgroup>
+                    <optgroup label="🌱 OSTARA — SPRING BLOOM" data-sabbat="ostara">
+                        <option value="flower|Fresh Renewal Lily">Renewal Lily</option>
+                        <option value="egg|Decorated Altar Talisman">Ostara Egg</option>
+                        <option value="sproutSeed|Sprouting Seed">Sprouting Seed</option>
+                        <option value="ostaraHare|Ostara Hare Charm">Ostara Hare</option>
+                    </optgroup>
+                    <optgroup label="🔥 BELTANE — FIRE BLOSSOM" data-sabbat="beltane">
+                        <option value="maypoleRibbon|Maypole Ribbon">Maypole Ribbon</option>
+                        <option value="hawthornBloom|Hawthorn Blossom">Hawthorn Blossom</option>
+                        <option value="wildHoney|Wild Honeycomb">Wild Honeycomb</option>
+                        <option value="beltaneTorch|Beltane Torch">Beltane Torch</option>
+                    </optgroup>
+                    <optgroup label="☀️ LITHA — SOLAR CROWN" data-sabbat="litha">
+                        <option value="amber|Solar Amber Crystal Resin">Solar Amber Resin</option>
+                        <option value="sunflower|Gilded Summer Seedling">Golden Sunflower</option>
+                        <option value="oakLeafCrown|Oak Leaf Crown">Oak Leaf Crown</option>
+                        <option value="beeswaxCandle|Beeswax Candle">Beeswax Candle</option>
+                    </optgroup>
+                    <optgroup label="🌾 LAMMAS — FIRST HARVEST" data-sabbat="lammas">
+                        <option value="wheatSheaf|Wheat Sheaf">Wheat Sheaf</option>
+                        <option value="harvestBread|Fresh-Baked Bread">Harvest Bread</option>
+                        <option value="harvestSickle|Harvest Sickle">Harvest Sickle</option>
+                        <option value="brambleBerries|Bramble Berries">Bramble Berries</option>
+                    </optgroup>
+                    <optgroup label="🍂 MABON — AUTUMN BALANCE" data-sabbat="mabon">
+                        <option value="apple|Crisp Crimson Harvest Apple">Harvest Red Apple</option>
+                        <option value="pomegranate|Underworld Devotion Seed">Pomegranate Fruit</option>
+                        <option value="wineGrapes|Wine Grapes">Wine Grapes</option>
+                        <option value="acornCluster|Acorn Cluster">Acorn Cluster</option>
+                    </optgroup>
+                    <optgroup label="🎃 SAMHAIN — VEIL NIGHT" data-sabbat="samhain">
+                        <option value="carvedGourd|Carved Gourd">Carved Gourd</option>
+                        <option value="ravenFeather|Raven Feather">Raven Feather</option>
+                        <option value="ancestorToken|Ancestor Token">Ancestor Token</option>
+                        <option value="veilCandle|Veil Candle">Veil Candle</option>
+                    </optgroup>
+                    <optgroup label="❄️ YULE — WINTER EVERGREEN" data-sabbat="yule">
+                        <option value="cone|Silver-Tipped Sacred Pine Cone">Sacred Pine Cone</option>
+                        <option value="holly|Crimson Holly Berry Sprig">Yule Holly Sprig</option>
+                        <option value="mistletoeSprig|Mistletoe Sprig">Mistletoe Sprig</option>
+                        <option value="yuleStar|Yule Star Ornament">Yule Star</option>
+                    </optgroup>
+                </select>
+                <button id="submitOfferingBtn">Validate & Dedicate</button>
+            </div>
+        </div>
+
+        <!-- CONTRIBUTION TITHE MODAL -->
+        <div id="titheModal" class="intent-modal">
+            <div class="modal-box">
+                <h4>Temple Contribution</h4>
+                <div class="modal-subtitle">A contribution to the temple current is required before an offering may be placed.</div>
+                <input id="titheName" type="text" placeholder="Your Name">
+                <input id="titheReceipt" type="password" placeholder="Contribution Verification Code">
+                <select id="titheAmount">
+                    <option value="1">One Silver Coin</option>
+                    <option value="5">Five Silver Coins</option>
+                    <option value="10">Ten Silver Coins</option>
+                    <option value="25">Twenty-Five Silver Coins</option>
+                </select>
+                <button id="submitTitheBtn">Dedicate Contribution</button>
+            </div>
+        </div>
+
+        <!-- MASTER VAULT MODAL -->
+        <div class="intent-modal" id="vaultModal">
+            <div class="modal-box" style="width: 360px;">
+                <h4>Master Offering Vault</h4>
+                <div class="modal-subtitle" style="color: #9d4edf;">Private Historic Record Ledger</div>
+                <div class="vault-log-container" id="vaultLogContainer"></div>
+                <div style="margin-top:12px; display:flex; gap:6px; justify-content:center;">
+                    <button id="closeVaultBtn">Secure Vault</button>
+                    <button id="wipeVaultBtn" style="background:#401212; border-color:#602222;">Clear Registry</button>
+                    <button id="resetCodesBtn" style="background:#122540; border-color:#22406b;">Reset Codes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ALTAR MAIN ARCHITECTURE & PEDESTAL -->
+        <div class="altar-table-wrapper">
+            <div class="altar-table">
+                
+                <!-- LEFT FLANK -->
+                <div class="altar-zone" id="leftZone">
+                    <span class="zone-label">Left Flank</span>
+                    <div class="candle-shrine">
+                        <div class="candle-row">
+                            <div class="candle-container" id="candle1" data-id="1"><div class="flame"></div><div class="wax-stick"></div></div>
+                            <div class="candle-container" id="candle2" data-id="2"><div class="flame"></div><div class="wax-stick"></div></div>
+                            <div class="candle-container" id="candle3" data-id="3"><div class="flame"></div><div class="wax-stick"></div></div>
+                        </div>
+                        <div class="ledger-box">
+                            <div class="ledger-header">
+                                <span>Temple Candle Log</span>
+                                <span class="sync-status" id="syncStatus">Syncing...</span>
+                                <span class="clear-ledger" id="clearBtn">Clear Log</span>
+                            </div>
+                            <div class="ledger-scroll" id="ledgerScroll"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CENTRAL FOCUS -->
+                <div class="altar-zone" id="centerZone">
+                    <span class="zone-label">Central Focus</span>
+                    <div class="central-shrine">
+                        
+                        <div class="deity-canopy" id="deityCanopy" title="Admin Aspect Control">
+                            <div class="relic-totem">
+                                <svg class="relic-svg" viewBox="0 0 24 24">
+                                    <path id="relicPath" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 14a4 4 0 1 1 4-4 4 4 0 0 1-4 4z"/>
+                                </svg>
+                            </div>
+                            <div class="deity-graphic" id="activeDeity">The Obsidian Mother</div>
+                            <div class="deity-subtitle" id="deitySubtitle">Temple Prime Current</div>
+                        </div>
+
+                        <div class="sigil-forge">
+                            <div class="canvas-shield">
+                                <canvas id="sigilCanvas" width="130" height="130"></canvas>
+                            </div>
+                            <div class="sigil-input-row">
+                                <input type="text" id="sigilText" placeholder="Focus Phrase..." maxlength="45">
+                                <button id="forgeBtn">Draw Stave</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT FLANK -->
+                <div class="altar-zone" id="rightZone">
+                    <span class="zone-label">Right Flank</span>
+                    <div class="offering-shrine">
+                        <div class="offering-slab-grid" id="offeringGrid"></div>
+                        <div class="basin-altar-box" id="basinTrigger" title="Place Devotion">
+                            <div class="offering-basin"></div>
+                            <div class="basin-stand"></div>
+                            <div class="basin-label" id="basinTextLabel">Offerings</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 3D PEDESTAL LEGS -->
+            <div class="altar-legs">
+                <div class="altar-leg-pillar"></div>
+                <div class="altar-leg-pillar"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzAV_wFbw9y5Fh26yU6T_-RrRxGjsX4g6tqaUW6rUwK3X-5dhtE1iBFsKS8HRtjddcmQA/exec";
+        const SECRET_KEY = "BeUrSelf";
+
+        const CONTRIBUTION_CODES = [
+            "EMBERVEIL-NOX", "HEARTHKEEP-VII", "MOONBOUND-ASH", "RAVENWICK-IX",
+            "SILVERROOT-XV", "WILLOWRITE-III", "OBSIDIAN-VEIL", "HARVESTGATE-XI"
+        ];
+
+        // --- WEB AUDIO SYNTHESIZER SOUND ENGINE ---
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+        }
+
+        function playIgniteSound() {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const bufferSize = audioCtx.sampleRate * 0.3;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+            filter.Q.setValueAtTime(3, audioCtx.currentTime);
+
+            const gain = audioCtx.createGain();
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            noise.start();
+        }
+
+        function playChimeSound() {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.4);
+
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 1.2);
+        }
+
+        // --- FULL HIGH-DETAIL OFFERING SVG VECTOR LIBRARY ---
+        const OFFERING_IMAGES = {
+            coin: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><radialGradient id="g" cx="35%" cy="28%" r="65%"><stop offset="0" stop-color="#fff2a8"/><stop offset=".45" stop-color="#d8a83d"/><stop offset="1" stop-color="#6f4318"/></radialGradient></defs><ellipse cx="32" cy="32" rx="22" ry="22" fill="url(#g)" stroke="#f6d477" stroke-width="2"/><ellipse cx="32" cy="32" rx="15" ry="15" fill="none" stroke="#7b4b1d" stroke-width="1.5"/><path d="M32 22v20M25 32h14" stroke="#7b4b1d" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+            crystal: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="15" y1="8" x2="48" y2="56"><stop offset="0" stop-color="#f8e7ff"/><stop offset=".45" stop-color="#9d4edf"/><stop offset="1" stop-color="#321048"/></linearGradient></defs><path d="M32 5 16 23l16 36 16-36Z" fill="url(#g)" stroke="#e2b5ff" stroke-width="2"/><path d="M32 5v54M16 23h32M24 23l8 36 8-36" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.5"/></svg>`,
+            sage: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="18" y1="7" x2="46" y2="58"><stop offset="0" stop-color="#dce8d0"/><stop offset="1" stop-color="#5e7355"/></linearGradient></defs><path d="M24 8c10 3 18 12 18 26 0 11-4 18-10 23-7-5-12-15-11-27 1-9 2-16 3-22Z" fill="url(#g)" stroke="#edf2dc" stroke-width="2"/><path d="M32 12c-3 13-3 27 0 42M23 24l18 8M22 35l20 8" stroke="#32452e" stroke-width="2" stroke-linecap="round"/></svg>`,
+            oil: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="b" x1="22" y1="8" x2="42" y2="58"><stop offset="0" stop-color="#f2f5ff"/><stop offset=".45" stop-color="#9fc4ff"/><stop offset="1" stop-color="#26324b"/></linearGradient><linearGradient id="o" x1="24" y1="34" x2="40" y2="56"><stop offset="0" stop-color="#ffd336"/><stop offset="1" stop-color="#8f4f16"/></linearGradient></defs><path d="M26 7h12v10l7 8v26c0 5-4 8-13 8s-13-3-13-8V25l7-8Z" fill="url(#b)" stroke="#d7e5ff" stroke-width="2"/><path d="M23 36h18v15c0 3-3 5-9 5s-9-2-9-5Z" fill="url(#o)"/><path d="M27 7h10" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>`,
+            incense: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M25 49h24l-5 7H20Z" fill="#4a2a18" stroke="#7b4b2d" stroke-width="2"/><path d="M18 50 45 18" stroke="#8b5a2b" stroke-width="4" stroke-linecap="round"/><path d="M25 8c-9 10 10 12 1 22M39 4c-11 12 12 15 0 28" fill="none" stroke="#d4af37" stroke-width="3" stroke-linecap="round"/></svg>`,
+            imbolcCandle: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M27 22h10v34a5 5 0 0 1-10 0Z" fill="#f4dfa0" stroke="#e8cf8f" stroke-width="2"/><path d="M32 6c-3 5-6 9-6 13a6 6 0 0 0 12 0c0-4-3-8-6-13Z" fill="#ffb347" stroke="#ffdca0" stroke-width="1.5"/></svg>`,
+            milkBowl: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M12 30c0 12 9 20 20 20s20-8 20-20Z" fill="#2a2f38" stroke="#4a5262" stroke-width="2"/><ellipse cx="32" cy="30" rx="20" ry="7" fill="#ffffff" stroke="#eef4fa" stroke-width="2"/></svg>`,
+            snowdrop: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 46V16" stroke="#6f9a6a" stroke-width="3" stroke-linecap="round"/><path d="M32 16c-8 2-10 10-10 16 4 3 16 3 20 0 0-6-2-14-10-16Z" fill="#ffffff" stroke="#a9c8d6" stroke-width="2"/></svg>`,
+            hearthEmber: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="36" r="18" fill="#ff8a3d" stroke="#ffbf6b" stroke-width="2"/><path d="M32 8c2 6-2 10 0 14M40 12c1 5-2 8 0 11" stroke="#ffd48a" stroke-width="2" stroke-linecap="round" fill="none"/></svg>`,
+            flower: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><g fill="#f0b4dc" stroke="#ffd0ec" stroke-width="1.5"><circle cx="32" cy="18" r="8"/><circle cx="32" cy="46" r="8"/><circle cx="18" cy="32" r="8"/><circle cx="46" cy="32" r="8"/></g><circle cx="32" cy="32" r="8" fill="#ffd15a" stroke="#7b4b1d" stroke-width="2"/></svg>`,
+            egg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 6c-10 0-17 15-17 29 0 14 7 23 17 23s17-9 17-23C49 21 42 6 32 6Z" fill="#c2e3ff" stroke="#f8f0d8" stroke-width="2.5"/><path d="M19 35c5-5 9 5 13 0s8 5 13 0" fill="none" stroke="#9d4edf" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+            sproutSeed: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><ellipse cx="30" cy="44" rx="9" ry="12" fill="#8a5a2b" stroke="#f0dcae" stroke-width="2"/><path d="M30 32c0-10 6-16 14-18-2 9-6 14-14 18Z" fill="#7bb661" stroke="#a8dd8f" stroke-width="2"/></svg>`,
+            ostaraHare: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><ellipse cx="32" cy="40" rx="16" ry="14" fill="#fff3e6" stroke="#d8b48c" stroke-width="2"/><path d="M22 22c-2-8 0-14 4-14s4 8 3 15M42 22c2-8 0-14-4-14s-4 8-3 15" stroke="#d8b48c" stroke-width="3" fill="none"/><circle cx="26" cy="38" r="2" fill="#5c4632"/><circle cx="38" cy="38" r="2" fill="#5c4632"/></svg>`,
+            maypoleRibbon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M10 12c10 8 4 18 14 22 10 4 6 14 16 18" fill="none" stroke="#ff8fa8" stroke-width="5" stroke-linecap="round"/></svg>`,
+            hawthornBloom: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="14" fill="#fff6f8" stroke="#f5c6d3" stroke-width="2"/><circle cx="32" cy="32" r="5" fill="#ffd23f"/><path d="M32 46v12" stroke="#5c8a4a" stroke-width="3" stroke-linecap="round"/></svg>`,
+            wildHoney: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><polygon points="32,8 46,16 46,32 32,40 18,32 18,16" fill="#ffe38a" stroke="#a5650f" stroke-width="2"/><polygon points="32,24 46,32 46,48 32,56 18,48 18,32" fill="#c9821a" stroke="#a5650f" stroke-width="2"/></svg>`,
+            beltaneTorch: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M28 26h8v30a4 4 0 0 1-8 0Z" fill="#4a2c14" stroke="#e8c896" stroke-width="2"/><path d="M32 4c-5 6-10 12-10 18a10 10 0 0 0 20 0c0-6-5-12-10-18Z" fill="#ff6a2b" stroke="#ffb347" stroke-width="2"/></svg>`,
+            amber: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M31 6 51 21l-5 27-24 10L10 35 17 13Z" fill="#ff9d23" stroke="#ffd36b" stroke-width="2.5"/></svg>`,
+            sunflower: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="22" fill="#f6bd32" stroke="#8f5d16" stroke-width="1.5"/><circle cx="32" cy="32" r="10" fill="#4b2b18"/></svg>`,
+            oakLeafCrown: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M20 40c-4-10 0-20 8-26 2 6-2 10 2 14 6-4 4-12 10-16 4 8 0 16-6 20 6 0 10-4 14-10 2 10-4 18-14 20Z" fill="#7a9e3b" stroke="#9fbf5a" stroke-width="2"/></svg>`,
+            beeswaxCandle: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M26 20h12v36a6 6 0 0 1-12 0Z" fill="#ffe38a" stroke="#f0c46a" stroke-width="2"/><path d="M32 4c-3 5-5 8-5 11a5 5 0 0 0 10 0c0-3-2-6-5-11Z" fill="#ff9d3d"/></svg>`,
+            wheatSheaf: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 56V16M20 56l8-40M44 56l-8-40" stroke="#f6e2a0" stroke-width="2.5"/><path d="M22 52h20l-4 6H26Z" fill="#a5650f"/></svg>`,
+            harvestBread: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M12 40c0-12 9-20 20-20s20 8 20 20c0 8-9 12-20 12s-20-4-20-12Z" fill="#e8b972" stroke="#f0d29a" stroke-width="2"/></svg>`,
+            harvestSickle: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M46 10c8 10 6 26-6 34-8 6-18 5-24-1 8 2 16-2 20-8 6-8 6-18 2-25Z" fill="#e6e9ee" stroke="#c7ccd4" stroke-width="2"/><path d="M14 44l6 6" stroke="#6b4118" stroke-width="4" stroke-linecap="round"/></svg>`,
+            brambleBerries: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="24" cy="30" r="7" fill="#3a1c4a"/><circle cx="34" cy="24" r="7" fill="#3a1c4a"/><circle cx="40" cy="34" r="7" fill="#3a1c4a"/><circle cx="30" cy="40" r="7" fill="#3a1c4a"/></svg>`,
+            apple: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 19c9-8 24 1 20 18-3 14-11 22-20 17-9 5-17-3-20-17-4-17 11-26 20-18Z" fill="#d52832" stroke="#ff7b75" stroke-width="2"/><path d="M33 19c-2-7 1-11 8-13" fill="none" stroke="#5b3317" stroke-width="3" stroke-linecap="round"/></svg>`,
+            pomegranate: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M23 12 32 5l9 7 5 2-4 6c7 4 11 12 8 24-2 10-9 15-18 15S16 54 14 44c-3-12 1-20 8-24l-4-6Z" fill="#a81c31" stroke="#ff7f80" stroke-width="2"/></svg>`,
+            wineGrapes: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><g fill="#6a2c8f"><circle cx="26" cy="24" r="6"/><circle cx="38" cy="24" r="6"/><circle cx="20" cy="34" r="6"/><circle cx="32" cy="34" r="6"/><circle cx="44" cy="34" r="6"/><circle cx="26" cy="44" r="6"/><circle cx="38" cy="44" r="6"/></g></svg>`,
+            acornCluster: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M22 22c0-6 5-10 10-10s10 4 10 10c-4-3-16-3-20 0Z" fill="#6b4118"/><path d="M22 24c0 10 4 22 10 26 6-4 10-16 10-26-6 4-14 4-20 0Z" fill="#e6bf7a" stroke="#f0d29a" stroke-width="1.5"/></svg>`,
+            carvedGourd: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 20c12 0 18 10 18 20 0 12-8 18-18 18s-18-6-18-18c0-10 6-20 18-20Z" fill="#ffb347" stroke="#ffcf7a" stroke-width="2"/><path d="M24 32l4 6-4 6M40 32l-4 6 4 6M26 46h12" stroke="#4a2408" stroke-width="2" fill="none"/></svg>`,
+            ravenFeather: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M30 6c10 4 16 16 12 32-3 12-10 20-14 24-2-8 0-18 2-26-8 4-14 2-18-2 8 0 14-6 16-14-6 2-12-2-14-8 8 2 14-2 16-6Z" fill="#242033" stroke="#8a86a0" stroke-width="1.5"/></svg>`,
+            ancestorToken: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="26" r="16" fill="#f2ede0" stroke="#d8d0bc" stroke-width="2"/><circle cx="26" cy="24" r="3" fill="#2a2620"/><circle cx="38" cy="24" r="3" fill="#2a2620"/><path d="M26 34c3 3 9 3 12 0" stroke="#2a2620" stroke-width="2" fill="none"/></svg>`,
+            veilCandle: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M27 22h10v34a5 5 0 0 1-10 0Z" fill="#4a3a5c" stroke="#7a5f96" stroke-width="2"/><path d="M32 6c-3 5-6 9-6 13a6 6 0 0 0 12 0c0-4-3-8-6-13Z" fill="#9d4edf" stroke="#c58fef" stroke-width="1.5"/></svg>`,
+            cone: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 5c10 10 16 22 16 34 0 13-7 20-16 20s-16-7-16-20C16 27 22 15 32 5Z" fill="#c78b52" stroke="#d9a16a" stroke-width="2"/></svg>`,
+            holly: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M29 31C18 18 12 20 7 28c7 0 7 5 5 10 8-4 12 0 17-7Z" fill="#3f8f4a"/><circle cx="29" cy="35" r="5" fill="#c7152c"/><circle cx="38" cy="36" r="5" fill="#a70f26"/></svg>`,
+            mistletoeSprig: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><ellipse cx="24" cy="26" rx="7" ry="11" fill="#6f9a6a"/><ellipse cx="40" cy="26" rx="7" ry="11" fill="#6f9a6a"/><circle cx="32" cy="28" r="4" fill="#ffffff"/></svg>`,
+            yuleStar: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M32 4l6 18 18 2-14 12 5 18-15-10-15 10 5-18-14-12 18-2Z" fill="#ffe8d8" stroke="#d6f3f7" stroke-width="2"/></svg>`
+        };
+
+        const GLYPH_LIBRARY = {
+            prime: "M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 14a4 4 0 1 1 4-4 4 4 0 0 1-4 4z",
+            moon: "M12 3a9 9 0 1 0 9 9 9.75 9.75 0 0 0-.67-3.4 6.75 6.75 0 0 1-8.33-8.33A9.67 9.67 0 0 0 12 3z",
+            flame: "M17.5 11.5c-.83-1.5-2.5-3.5-4-5.5-1 2-2.5 3.5-3.5 5.5A4.5 4.5 0 1 0 17.5 11.5z M12 22a7 7 0 0 1-7-7c0-2.5 2-5 4-7.5 1.5 2.5 3 4.5 3 7.5a3 3 0 1 0 6 0c0-3-2-5.5-3.5-8 3 3.5 5.5 6.5 5.5 10.5a7 7 0 0 1-7 7z",
+            flower: "M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0 M12 2v4 M12 18v4 M2 12h4 M18 12h4 M5 5l3 3 M16 16l3 3 M5 19l3-3 M16 8l3-3",
+            fertility: "M12 2c1.7 0 3 1.3 3 3s-1.3 3-3 3-3-1.3-3-3 1.3-3 3-3zm6 11c0-3.3-2.7-6-6-6s-6 2.7-6 6v7h2v-7c0-2.2 1.8-4 4-4s4 1.8 4 4v7h2v-7z",
+            dawn: "M12 4v3 M5 7l2 2 M19 7l-2 2 M2 14h20 M4 14a8 8 0 0 1 16 0",
+            sunwheel: "M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zm0-20v20M2 12h20M5 5l14 14M5 19L14 5",
+            crown: "M2 18l2-11 5 5 3-7 3 7 5-5 2 11H2z",
+            rain: "M17 12a5 5 0 0 0-4-9 7 7 0 0 0-11 6 4 4 0 0 0 1 8h14a4.5 4.5 0 0 0 0-9z M8 18v3 M12 18v3 M16 18v3",
+            eye: "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zm11 4a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
+            sun: "M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z M12 1v2 M12 21v2 M1 12h2 M21 12h2",
+            harvest: "M6 22V10a6 6 0 0 1 12 0v12 M12 4v6",
+            vine: "M12 22a5 5 0 0 0 5-5c0-4-5-9-5-9s-5 5-5 9a5 5 0 0 0 5 5z",
+            horn: "M19 21H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2z M12 9v6M9 12h6",
+            lunar: "M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2a10 10 0 0 0 0 20z",
+            staff: "M12 2a3 3 0 0 0-3 3v17h2V5a1 1 0 0 1 2 0v2h2V5a3 3 0 0 0-3-3z",
+            bow: "M6 3c0 6 3 9 6 9s6-3 6-9 M12 12v9",
+            gate: "M19 22V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v17 M3 22h18"
+        };
+
+        const ALTAR_THEMES = {
+            imbolc: { sky: '#1c2b30', depth: '#080b0d', halo: 'rgba(255, 225, 160, 0.22)', glow: 'rgba(255, 225, 160, 0.28)', border: '#6b6248', body: '#080b0d', particle: 'snow' },
+            ostara: { sky: '#1a2c1e', depth: '#070b08', halo: 'rgba(170, 226, 150, 0.22)', glow: 'rgba(190, 235, 160, 0.28)', border: '#457a4c', body: '#070b08', particle: 'pollen' },
+            beltane: { sky: '#2c1712', depth: '#080605', halo: 'rgba(255, 120, 80, 0.24)', glow: 'rgba(255, 95, 60, 0.30)', border: '#8a3d30', body: '#090605', particle: 'ember' },
+            litha: { sky: '#2b260e', depth: '#080704', halo: 'rgba(255, 216, 90, 0.26)', glow: 'rgba(255, 212, 80, 0.32)', border: '#8f7429', body: '#090804', particle: 'sun' },
+            lammas: { sky: '#291e10', depth: '#090704', halo: 'rgba(226, 160, 70, 0.22)', glow: 'rgba(228, 161, 70, 0.28)', border: '#87602d', body: '#0a0704', particle: 'sun' },
+            mabon: { sky: '#2b1810', depth: '#080504', halo: 'rgba(200, 100, 48, 0.24)', glow: 'rgba(204, 100, 48, 0.30)', border: '#84492f', body: '#090504', particle: 'ember' },
+            samhain: { sky: '#181228', depth: '#050407', halo: 'rgba(160, 85, 220, 0.24)', glow: 'rgba(170, 90, 235, 0.30)', border: '#5f3a72', body: '#050407', particle: 'ember' },
+            yule: { sky: '#0f232a', depth: '#040708', halo: 'rgba(150, 224, 238, 0.24)', glow: 'rgba(160, 228, 240, 0.30)', border: '#3d7580', body: '#040708', particle: 'snow' },
+            prime: { sky: '#16161a', depth: '#070708', halo: 'rgba(121, 40, 202, 0.22)', glow: 'rgba(121, 40, 202, 0.25)', border: '#2a2833', body: '#0b0b0c', particle: 'ember' }
+        };
+
+        const STORAGE = { USED_CODES: 'templeUsedContributionCodes' };
+
+        // DOM HANDLES
+        const candles = document.querySelectorAll('.candle-container');
+        const modal = document.getElementById('intentModal');
+        const userInput = document.getElementById('userInput');
+        const intentInput = document.getElementById('intentInput');
+        const submitBtn = document.getElementById('submitIntentBtn');
+        const ledgerScroll = document.getElementById('ledgerScroll');
+        const syncStatus = document.getElementById('syncStatus');
+        const clearBtn = document.getElementById('clearBtn');
+        
+        const deityCanopy = document.getElementById('deityCanopy');
+        const deityModal = document.getElementById('deityModal');
+        const adminPassInput = document.getElementById('adminPassInput');
+        const deitySelector = document.getElementById('deitySelector');
+        const altarThemeSelector = document.getElementById('altarThemeSelector');
+        const submitDeityBtn = document.getElementById('submitDeityBtn');
+        const activeDeity = document.getElementById('activeDeity');
+        const deitySubtitle = document.getElementById('deitySubtitle');
+        const relicPath = document.getElementById('relicPath');
+        const templeChamber = document.querySelector('.temple-chamber');
+        const seasonalDecorLayer = document.getElementById('seasonalDecorLayer');
+
+        const basinTrigger = document.getElementById('basinTrigger');
+        const basinModal = document.getElementById('basinModal');
+        const titheModal = document.getElementById('titheModal');
+        const vaultModal = document.getElementById('vaultModal');
+        const offeringGrid = document.getElementById('offeringGrid');
+        
+        const sigilText = document.getElementById('sigilText');
+        const forgeBtn = document.getElementById('forgeBtn');
+        const canvas = document.getElementById('sigilCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let targetedCandle = null;
+        let activeParticleType = 'ember';
+        let currentOfferings = [];
+
+        function safeGet(key, fallback = []) {
+            try { const val = localStorage.getItem(key); return val ? JSON.parse(val) : fallback; } catch (e) { return fallback; }
+        }
+        function safeSet(key, value) {
+            try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (e) { return false; }
+        }
+        function cleanInput(str, len = 100) {
+            return String(str || '').replace(/[<>]/g, '').trim().substring(0, len);
+        }
+
+        // --- GOOGLE SHEETS LIVE SYNC ENGINE ---
+        async function fetchGlobalData() {
+            try {
+                syncStatus.textContent = "Syncing...";
+                const res = await fetch(GOOGLE_SHEET_URL);
+                const data = await res.json();
+                
+                // 1. Sync Candle Intents Log
+                ledgerScroll.innerHTML = '';
+                if (!data.intents || !data.intents.length) {
+                    ledgerScroll.innerHTML = '<div class="ledger-entry" style="text-align:center;">No candles lit yet.</div>';
+                } else {
+                    data.intents.slice().reverse().forEach(entry => {
+                        const item = document.createElement('div');
+                        item.className = 'ledger-entry';
+                        item.innerHTML = `<div class="entry-meta">[${entry.date}] <span class="entry-user">${entry.name}</span></div>
+                                          <div class="entry-intent">"${entry.intent}"</div>`;
+                        ledgerScroll.appendChild(item);
+                    });
+                }
+
+                // 2. Sync Global Altar State
+                if (data.state) {
+                    if (data.state.activeDeity) activeDeity.textContent = data.state.activeDeity;
+                    if (data.state.deitySubtitle) deitySubtitle.textContent = data.state.deitySubtitle;
+                    if (data.state.deityGlyph) relicPath.setAttribute('d', GLYPH_LIBRARY[data.state.deityGlyph] || GLYPH_LIBRARY.prime);
+                    if (data.state.altarTheme) applyTheme(data.state.altarTheme, false);
+                    
+                    if (data.state.offeringsJSON) {
+                        try {
+                            currentOfferings = JSON.parse(data.state.offeringsJSON);
+                            renderOfferings();
+                        } catch(e) {}
+                    }
+                }
+
+                syncStatus.textContent = "Live";
+            } catch (err) {
+                syncStatus.textContent = "Sync Error";
+            }
+        }
+
+        async function postIntentToSheet(entry) {
+            try {
+                syncStatus.textContent = "Sending...";
+                await fetch(GOOGLE_SHEET_URL, {
+                    method: 'POST', mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: "addIntent", ...entry })
+                });
+                setTimeout(fetchGlobalData, 1200);
+            } catch (err) { syncStatus.textContent = "Failed to send"; }
+        }
+
+        async function postStateToSheet(stateUpdate) {
+            try {
+                syncStatus.textContent = "Updating State...";
+                await fetch(GOOGLE_SHEET_URL, {
+                    method: 'POST', mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: "updateState", state: stateUpdate })
+                });
+                setTimeout(fetchGlobalData, 1200);
+            } catch (err) { syncStatus.textContent = "Failed state update"; }
+        }
+
+        // --- CANDLE LIGHTING ---
+        candles.forEach(candle => {
+            candle.addEventListener('click', () => {
+                targetedCandle = candle;
+                userInput.value = ''; intentInput.value = '';
+                modal.classList.add('active'); userInput.focus();
+            });
+        });
+
+        submitBtn.addEventListener('click', () => {
+            const name = cleanInput(userInput.value, 20) || 'Anonymous Seeker';
+            const intent = cleanInput(intentInput.value, 50);
+            if (!targetedCandle || !intent) { modal.classList.remove('active'); return; }
+
+            const entry = {
+                name: name, intent: intent, candleId: targetedCandle.dataset.id,
+                date: new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+            };
+
+            targetedCandle.classList.add('lit');
+            playIgniteSound();
+            modal.classList.remove('active');
+            postIntentToSheet(entry);
+        });
+
+        clearBtn.addEventListener('click', () => {
+            const pass = prompt('Enter Administrator Passcode:');
+            if (pass !== SECRET_KEY) return;
+            ledgerScroll.innerHTML = '<div class="ledger-entry" style="text-align:center;">Log cleared.</div>';
+            candles.forEach(c => c.classList.remove('lit'));
+        });
+
+        // --- BINDRUNE & RUNIC STAVE FORGE CANVAS ENGINE ---
+        function drawWheelBase() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const cx = 65, cy = 65;
+            
+            ctx.beginPath(); ctx.arc(cx, cy, 58, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(157, 78, 223, 0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+            ctx.beginPath(); ctx.arc(cx, cy, 50, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.2)'; ctx.lineWidth = 1; ctx.stroke();
+        }
+
+        function drawRuneStave(text) {
+            const cleaned = cleanInput(text, 45).toUpperCase().replace(/[^A-Z]/g, '');
+            drawWheelBase();
+            if (!cleaned) return;
+
+            const cx = 65, cy = 65;
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = '#d4af37';
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = '#9d4edf';
+
+            ctx.beginPath(); ctx.moveTo(cx, cy - 44); ctx.lineTo(cx, cy + 44); ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(cx - 9, cy - 34); ctx.lineTo(cx, cy - 44); ctx.lineTo(cx + 9, cy - 34);
+            ctx.stroke();
+
+            const numRunes = Math.min(cleaned.length, 8);
+            const step = 64 / Math.max(numRunes, 1);
+
+            for (let i = 0; i < numRunes; i++) {
+                const charCode = cleaned.charCodeAt(i) - 65;
+                const yPos = (cy - 28) + (i * step);
+                const side = (i % 2 === 0) ? 1 : -1;
+
+                ctx.strokeStyle = (i % 2 === 0) ? '#d4af37' : '#9d4edf';
+                ctx.beginPath();
+
+                if (charCode % 5 === 0) {
+                    ctx.moveTo(cx, yPos); ctx.lineTo(cx + (16 * side), yPos - 10);
+                    ctx.moveTo(cx, yPos + 6); ctx.lineTo(cx + (12 * side), yPos - 4);
+                } else if (charCode % 5 === 1) {
+                    ctx.moveTo(cx, yPos); ctx.lineTo(cx + 14, yPos - 12);
+                    ctx.moveTo(cx, yPos); ctx.lineTo(cx - 14, yPos - 12);
+                } else if (charCode % 5 === 2) {
+                    ctx.moveTo(cx - 12, yPos - 8); ctx.lineTo(cx + 12, yPos + 8);
+                    ctx.moveTo(cx - 12, yPos + 8); ctx.lineTo(cx + 12, yPos - 8);
+                } else if (charCode % 5 === 3) {
+                    ctx.moveTo(cx, yPos - 7); ctx.lineTo(cx + (12 * side), yPos); ctx.lineTo(cx, yPos + 7);
+                } else {
+                    ctx.moveTo(cx, yPos - 8); ctx.lineTo(cx + (14 * side), yPos); ctx.lineTo(cx, yPos + 8);
+                }
+                ctx.stroke();
+            }
+
+            const radialStaves = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+            radialStaves.forEach(ang => {
+                const rx = cx + Math.cos(ang) * 50;
+                const ry = cy + Math.sin(ang) * 50;
+                ctx.beginPath(); ctx.arc(rx, ry, 3, 0, Math.PI * 2);
+                ctx.fillStyle = '#d4af37'; ctx.fill();
+            });
+
+            ctx.shadowBlur = 0;
+        }
+
+        forgeBtn.addEventListener('click', () => {
+            drawRuneStave(sigilText.value);
+            playChimeSound();
+        });
+
+        // --- OFFERING MATRIX & TITHE VAULT ---
+        basinTrigger.addEventListener('click', (e) => {
+            if (e.target.id === 'basinTextLabel') {
+                const pass = prompt('Open Master Vault Passcode:');
+                if (pass === SECRET_KEY) {
+                    buildVaultView();
+                    vaultModal.classList.add('active');
+                }
+                return;
+            }
+            titheModal.classList.add('active');
+        });
+
+        document.getElementById('submitTitheBtn').addEventListener('click', () => {
+            const code = cleanInput(document.getElementById('titheReceipt').value, 30).toUpperCase();
+            const usedCodes = safeGet(STORAGE.USED_CODES, []);
+
+            if (!CONTRIBUTION_CODES.includes(code)) { alert('Invalid contribution verification code.'); return; }
+            if (usedCodes.includes(code)) { alert('That contribution code has already been redeemed.'); return; }
+
+            usedCodes.push(code); safeSet(STORAGE.USED_CODES, usedCodes);
+            titheModal.classList.remove('active');
+            document.getElementById('offeringUser').value = cleanInput(document.getElementById('titheName').value, 20);
+            basinModal.classList.add('active');
+        });
+
+        document.getElementById('submitOfferingBtn').addEventListener('click', () => {
+            const user = cleanInput(document.getElementById('offeringUser').value, 20) || 'Anonymous';
+            const selected = document.getElementById('offeringSelector');
+            const [type, detail] = selected.value.split('|');
+            const label = selected.options[selected.selectedIndex].text;
+
+            currentOfferings.push({ user, type, detail, label, date: new Date().toLocaleDateString() });
+            
+            playChimeSound();
+            postStateToSheet({ offeringsJSON: JSON.stringify(currentOfferings) });
+            renderOfferings();
+            basinModal.classList.remove('active');
+        });
+
+        function renderOfferings() {
+            offeringGrid.innerHTML = '';
+            const offerings = currentOfferings.slice(-8);
+            offerings.forEach(item => {
+                const token = document.createElement('div');
+                token.className = 'offered-token';
+                
+                const rawSvg = OFFERING_IMAGES[item.type] || OFFERING_IMAGES.coin;
+                const encodedSvg = `data:image/svg+xml;utf8,${encodeURIComponent(rawSvg)}`;
+                
+                token.innerHTML = `
+                    <img class="offering-image" src="${encodedSvg}" alt="${item.label}">
+                    <div class="token-tooltip">
+                        <span class="item-title">${item.label}</span>
+                        <span class="giver-name">Dedicated by ${item.user}</span>
+                    </div>`;
+                offeringGrid.appendChild(token);
+            });
+        }
+
+        function buildVaultView() {
+            const container = document.getElementById('vaultLogContainer');
+            container.innerHTML = '';
+            if (!currentOfferings.length) { container.innerHTML = '<div class="vault-entry">No historic offerings registered.</div>'; return; }
+            currentOfferings.slice().reverse().forEach(o => {
+                const row = document.createElement('div'); row.className = 'vault-entry';
+                row.innerHTML = `[${o.date}] <span>${o.user}</span> dedicated <span>${o.label}</span>`;
+                container.appendChild(row);
+            });
+        }
+
+        document.getElementById('closeVaultBtn').addEventListener('click', () => vaultModal.classList.remove('active'));
+        document.getElementById('wipeVaultBtn').addEventListener('click', () => {
+            if (confirm('Permanently clear historical contribution ledger?')) {
+                currentOfferings = [];
+                postStateToSheet({ offeringsJSON: "[]" });
+                renderOfferings(); buildVaultView();
+            }
+        });
+        document.getElementById('resetCodesBtn').addEventListener('click', () => {
+            if (confirm('Reset contribution code redemptions?')) { safeSet(STORAGE.USED_CODES, []); alert('All contribution codes are active again.'); }
+        });
+
+        // --- FESTIVE PARTICLES ENGINE ---
+        const pCanvas = document.getElementById('particleCanvas');
+        const pCtx = pCanvas.getContext('2d');
+        let particles = [];
+
+        function resizeParticleCanvas() {
+            pCanvas.width = templeChamber.clientWidth;
+            pCanvas.height = templeChamber.clientHeight;
+        }
+        window.addEventListener('resize', resizeParticleCanvas);
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * pCanvas.width;
+                this.y = activeParticleType === 'ember' ? pCanvas.height + 10 : -10;
+                this.size = Math.random() * 3.5 + 1.2;
+                this.speedY = activeParticleType === 'ember' ? -(Math.random() * 1.8 + 0.6) : Math.random() * 1.8 + 0.6;
+                this.speedX = Math.random() * 1.4 - 0.7;
+                this.opacity = Math.random() * 0.75 + 0.25;
+            }
+            update() {
+                this.y += this.speedY; this.x += this.speedX;
+                if (this.y < -10 || this.y > pCanvas.height + 10 || this.x < -10 || this.x > pCanvas.width + 10) this.reset();
+            }
+            draw() {
+                pCtx.beginPath(); pCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                pCtx.fillStyle = activeParticleType === 'snow' ? `rgba(255, 255, 255, ${this.opacity})` :
+                                 activeParticleType === 'pollen' ? `rgba(180, 255, 170, ${this.opacity})` :
+                                 activeParticleType === 'sun' ? `rgba(255, 215, 0, ${this.opacity})` :
+                                 `rgba(255, 120, 30, ${this.opacity})`;
+                pCtx.fill();
+            }
+        }
+
+        function initParticleEngine() {
+            resizeParticleCanvas();
+            particles = [];
+            for (let i = 0; i < 65; i++) particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+
+        function applyTheme(themeKey, shouldPost = true) {
+            const t = ALTAR_THEMES[themeKey] || ALTAR_THEMES.samhain;
+            templeChamber.style.setProperty('--altar-sky', t.sky);
+            templeChamber.style.setProperty('--altar-depth', t.depth);
+            templeChamber.style.setProperty('--altar-halo', t.halo);
+            templeChamber.style.setProperty('--altar-glow', t.glow);
+            templeChamber.style.setProperty('--altar-border', t.border);
+            activeParticleType = t.particle;
+        }
+
+        // --- ASPECT / DEITY SELECTION ---
+        deityCanopy.addEventListener('click', () => {
+            adminPassInput.value = ''; deityModal.classList.add('active'); adminPassInput.focus();
+        });
+
+        submitDeityBtn.addEventListener('click', () => {
+            if (adminPassInput.value !== SECRET_KEY) { alert('Unauthorized passcode.'); deityModal.classList.remove('active'); return; }
+            const [dName, dSub, dGlyph] = deitySelector.value.split('|');
+            const chosenTheme = altarThemeSelector.value;
+
+            activeDeity.textContent = dName;
+            deitySubtitle.textContent = dSub;
+            relicPath.setAttribute('d', GLYPH_LIBRARY[dGlyph] || GLYPH_LIBRARY.prime);
+            applyTheme(chosenTheme);
+
+            postStateToSheet({
+                activeDeity: dName,
+                deitySubtitle: dSub,
+                deityGlyph: dGlyph,
+                altarTheme: chosenTheme
+            });
+
+            deityModal.classList.remove('active');
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('intent-modal')) e.target.classList.remove('active');
+        });
+
+        // INIT STATE
+        initParticleEngine();
+        animateParticles();
+        drawWheelBase();
+        
+        // Initial Fetch and Auto-Poll Every 10 Seconds
+        fetchGlobalData();
+        setInterval(fetchGlobalData, 10000);
+    </script>
+
+<script>
+/* ==== mobile hardening (added for the Temple app build) ==== */
+(function () {
+  // 1. Hold animation frames while the app is backgrounded, then resume.
+  //    Without this the particle loops keep requesting frames in standalone
+  //    mode and quietly drain the battery.
+  if (window.requestAnimationFrame) {
+    var native = window.requestAnimationFrame.bind(window);
+    var held = new Set();
+    window.requestAnimationFrame = function (cb) {
+      if (document.hidden) { held.add(cb); return -1; }
+      return native(cb);
+    };
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && held.size) {
+        var queued = Array.from(held);
+        held.clear();
+        queued.forEach(function (cb) { native(cb); });
+      }
+    });
+  }
+
+  // 2. Tell the user when they're offline, so a failed save reads as
+  //    "no signal" rather than "this app is broken".
+  function ensureBar() {
+    if (document.getElementById('omtOfflineBar')) return;
+    var bar = document.createElement('div');
+    bar.id = 'omtOfflineBar';
+    bar.textContent = "You're offline \u2014 anything you send will need a connection. Everything else keeps working.";
+    document.body.appendChild(bar);
+  }
+  function sync() {
+    ensureBar();
+    document.body.classList.toggle('omt-offline', !navigator.onLine);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', sync);
+  } else { sync(); }
+  window.addEventListener('online', sync);
+  window.addEventListener('offline', sync);
+})();
+</script>
+
+<style>
+#templeBack{
+  position:fixed; z-index:99998;
+  top:calc(10px + env(safe-area-inset-top,0px));
+  left:calc(10px + env(safe-area-inset-left,0px));
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 13px 8px 10px; min-height:38px;
+  background:rgba(10,6,24,.82); color:#c092f0;
+  border:1px solid rgba(157,91,210,.42); border-radius:999px;
+  font:500 12.5px/1 system-ui,-apple-system,sans-serif;
+  letter-spacing:.04em; text-decoration:none;
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+  transition:background .2s,border-color .2s;
+}
+#templeBack:hover,#templeBack:focus-visible{background:rgba(20,12,40,.95);border-color:#9d5bd2;outline:none}
+#templeBack:active{transform:scale(.96)}
+#templeBack svg{width:13px;height:13px;flex:none}
+@media print{#templeBack{display:none}}
+</style>
+<a id="templeBack" href="../index.html" aria-label="Back to the Temple">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+       stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+  Temple
+</a>
+</body>
+</html>
+
+
+
+Obsidian Mirror

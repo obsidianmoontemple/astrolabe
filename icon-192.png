@@ -1,0 +1,48 @@
+# Temple of the Obsidian Moon — app
+
+One PWA containing all seven halls. No build step, no backend.
+
+    index.html          home screen / navigation
+    pages/              the seven sections
+    icons/  images/     app icons and artwork
+    manifest.json  sw.js
+    .well-known/assetlinks.json   <- SHA-256 still to fill in
+    .nojekyll           keeps GitHub Pages from eating .well-known
+
+## Deploy
+
+Push to the repo root, Pages on, custom domain, Enforce HTTPS.
+Then confirm `https://your-domain/.well-known/assetlinks.json` returns
+JSON with an HTTP 200.
+
+## Fill in assetlinks.json
+
+Package name is already set to `com.obsidianmoontemple.temple`.
+Replace `REPLACE_WITH_SHA256_FROM_PLAY_CONSOLE` with the SHA-256 of the
+**app signing certificate** (Play Console -> Test and release -> Setup ->
+App signing). Not the upload certificate.
+
+## Build
+
+    npm install -g @bubblewrap/cli
+    bubblewrap init --manifest https://your-domain/manifest.json
+    bubblewrap build
+
+Target API 36. Output .aab, not .apk. Back up the keystore and its
+passwords — losing them means never shipping an update to this listing.
+
+## Changing anything later
+
+Edit the file, bump `CACHE` in sw.js (`temple-v1` -> `temple-v2`), push.
+Content updates need no new Play release; the app loads from the live site.
+Only manifest, icon or package changes require a new .aab.
+
+## Known / deliberate
+
+- Portal, Altar and Kid Zone post to Google Apps Script endpoints. They're
+  the only network dependencies; an offline bar appears when there's no
+  connection rather than failing silently.
+- The Obsidian Mirror's dialog sits slightly left of centre because the
+  reset button is a flex sibling. Pre-existing, unchanged.
+- No donation button — see notes before adding one to a paid app.
+- Pantheon Gate is a separate release and is not included.
